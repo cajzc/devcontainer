@@ -1,0 +1,12 @@
+services: 
+  devcontainer:
+    build: .
+    ports: 
+    - "2222:22"
+    volumes:
+      - ./workspace:/home/devcontainer/workspace
+    stdin_open:
+      true
+    tty:
+      true
+    working_dir: /home/devcontainer/workspace
