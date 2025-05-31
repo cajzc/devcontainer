@@ -1,7 +1,7 @@
 FROM debian:latest
 
-# Install packages
 
+# Install packages
 RUN apt-get update && apt-get install -y \
 	git \
 	zsh \
@@ -19,27 +19,28 @@ RUN apt-get update && apt-get install -y \
 	python3 \
 	python3-pip \
 	build-essential \
-	# Node.js (via Nodesource)
-	&& curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-	&& apt-get install -y nodejs \
-	# Go
-	&& curl -OL https://golang.org/dl/go1.21.0.linux-amd64.tar.gz \
-	&& tar -C /usr/local -xzf go1.21.0.linux-amd64.tar.gz \
-	&& rm go1.21.0.linux-amd64.tar.gz \
-	# Rust
-	&& curl https://sh.rustup.rs -sSf | sh -s -- -y \
-	# Cleanup
 	&& apt-get clean \
 	&& rm -rf /var/lib/apt/lists/*
 
-# Setup ssh
-RUN rm -f /etc/ssh/ssh_host_* && \
-	ssh-keygen -A
 
 # Build the most recent version of nvim
 RUN git clone --depth 1 https://github.com/neovim/neovim && \
 	cd neovim && make CMAKE_BUILD_TYPE=RelWithDebInfo && \
 	sudo make install
+
+
+# Install Rust and add to PATH
+# Install Rust globally
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable --profile minimal && \
+	ln -s /root/.cargo/bin/* /usr/local/bin/
+ENV PATH="/usr/local/bin:${PATH}"
+
+
+# Setup ssh
+RUN rm -f /etc/ssh/ssh_host_* && \
+	ssh-keygen -A
+
+
 
 # Setup the user
 # zsh as the default shell
